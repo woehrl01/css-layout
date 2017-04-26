@@ -210,7 +210,11 @@ static YGConfig gYGConfigDefaults = {
         },
     .useWebDefaults = false,
     .pointScaleFactor = 1.0f,
+#ifdef ANDROID
+    .logger = &YGAndroidLog,
+#else
     .logger = &YGDefaultLog,
+#endif
 };
 
 static void YGNodeMarkDirtyInternal(const YGNodeRef node);
@@ -246,7 +250,6 @@ static int YGAndroidLog(YGLogLevel level, const YGNodeRef node, const char *form
   const int result = __android_log_vprint(androidLevel, "YG-layout", format, args);
   return result;
 }
-static YGLogger gLogger = &YGAndroidLog;
 #else
 static int YGDefaultLog(YGLogLevel level, const YGNodeRef node, const char *format, va_list args) {
   switch (level) {
