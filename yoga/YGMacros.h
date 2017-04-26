@@ -44,8 +44,7 @@
 #ifndef YG_ASSERT
 #define YG_ASSERT(X, message)              \
   if (!(X)) {                              \
-    YGLog(YGLogLevelError, "%s", message); \
-    YG_ABORT();                            \
+    YGLog(NULL, YGLogLevelError, "%s", message); \
   }
 #endif
 
