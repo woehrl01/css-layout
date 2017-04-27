@@ -99,6 +99,7 @@ typedef struct YGConfig {
   bool useWebDefaults;
   float pointScaleFactor;
   YGLogger logger;
+  void *context;
 } YGConfig;
 
 typedef struct YGNode {
@@ -215,6 +216,7 @@ static YGConfig gYGConfigDefaults = {
 #else
     .logger = &YGDefaultLog,
 #endif
+    .context = NULL,
 };
 
 static void YGNodeMarkDirtyInternal(const YGNodeRef node);
@@ -228,7 +230,7 @@ static YGValue YGValueZero = {.value = 0, .unit = YGUnitPoint};
 
 #ifdef ANDROID
 #include <android/log.h>
-static int YGAndroidLog(YGLogLevel level, const YGNodeRef node, const char *format, va_list args) {
+static int YGAndroidLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args) {
   int androidLevel = YGLogLevelDebug;
   switch (level) {
     case YGLogLevelError:
@@ -251,7 +253,7 @@ static int YGAndroidLog(YGLogLevel level, const YGNodeRef node, const char *form
   return result;
 }
 #else
-static int YGDefaultLog(YGLogLevel level, const YGNodeRef node, const char *format, va_list args) {
+static int YGDefaultLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args) {
   switch (level) {
     case YGLogLevelError:
       return vfprintf(stderr, format, args);
@@ -394,7 +396,7 @@ int32_t YGConfigGetInstanceCount(void) {
 YGConfigRef YGConfigNew(void) {
   const YGConfigRef config = gYGMalloc(sizeof(YGConfig));
   if (config == NULL) {
-    YGLogWithConfig(NULL, YGLogLevelFatal, "Could not allocate memory for config");
+    YGLog(NULL, YGLogLevelFatal, "Could not allocate memory for config");
   }
 
   gConfigInstanceCount++;
@@ -3467,7 +3469,7 @@ void YGLogWithConfig(const YGConfigRef config, YGLogLevel level, const char *for
   va_list args;
   va_start(args, format);
   const YGLogger logger = config != NULL ? config->logger : &YGDefaultLog;
-  logger(level, NULL, format, args);
+  logger(config, NULL, level, format, args);
   va_end(args);
 }
 
@@ -3475,7 +3477,7 @@ void YGLog(const YGNodeRef node, YGLogLevel level, const char *format, ...) {
   va_list args;
   va_start(args, format);
   const YGLogger logger = node != NULL ? node->config->logger : &YGDefaultLog;
-  logger(level, node, format, args);
+  logger(node != NULL ? node->config : NULL, node, format, args);
   va_end(args);
 }
 
@@ -3498,16 +3500,24 @@ bool YGConfigGetUseWebDefaults(const YGConfigRef config) {
   return config->useWebDefaults;
 }
 
+void YGConfigSetContext(const YGConfigRef config, void * context) {
+  config->context = context;
+}
+
+void * YGConfigGetContext(const YGConfigRef config) {
+  return config->context;
+}
+
 void YGSetMemoryFuncs(YGMalloc ygmalloc, YGCalloc yccalloc, YGRealloc ygrealloc, YGFree ygfree) {
   if (gNodeInstanceCount != 0 || gConfigInstanceCount != 0) {
-    YGLogWithConfig(NULL,
+    YGLog(NULL,
                     YGLogLevelFatal,
                     "Cannot set memory functions: all node must be freed first");
   }
 
   if (!((ygmalloc == NULL && yccalloc == NULL && ygrealloc == NULL && ygfree == NULL) ||
         (ygmalloc != NULL && yccalloc != NULL && ygrealloc != NULL && ygfree != NULL))) {
-    YGLogWithConfig(NULL,
+    YGLog(NULL,
                     YGLogLevelFatal,
                     "Cannot set memory functions: functions must be all NULL or Non-NULL");
   }

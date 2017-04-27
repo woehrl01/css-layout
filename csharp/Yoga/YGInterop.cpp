@@ -9,19 +9,18 @@
 
 #include "YGInterop.h"
 
-static YGInteropLoggerFunc gManagedFunc;
-
-static int unmanagedLogger(YGLogLevel level, const char *format, va_list args) {
+static int unmanagedLogger(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args) {
   int result = 0;
-  if (gManagedFunc) {
+  YGInteropLoggerFunc  ManagedFunc = (YGInteropLoggerFunc)YGConfigGetContext(config);
+  if (managedFunc) {
     char buffer[256];
     result = vsnprintf(buffer, sizeof(buffer), format, args);
-    (*gManagedFunc)(level, buffer);
+    (*managedFunc)(node, level, buffer);
   }
   return result;
 }
 
-void YGInteropSetLogger(YGInteropLoggerFunc managedFunc) {
-  gManagedFunc = managedFunc;
-  YGSetLogger(&unmanagedLogger);
+void YGInteropSetLogger(const YGConfigRef config, YGInteropLoggerFunc managedFunc) {
+  YGConfigSetContext(config, managedFunc);
+  YGSetLogger(config, &unmanagedLogger);
 }
