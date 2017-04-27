@@ -201,7 +201,7 @@ static YGNode gYGNodeDefaults = {
         },
 };
 
-static int YGDefaultLog(YGLogLevel level, const YGNodeRef node, const char *format, va_list args);
+static int YGDefaultLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args);
 
 static YGConfig gYGConfigDefaults = {
     .experimentalFeatures =
@@ -3477,7 +3477,7 @@ void YGLog(const YGNodeRef node, YGLogLevel level, const char *format, ...) {
   va_list args;
   va_start(args, format);
   const YGLogger logger = node != NULL ? node->config->logger : &YGDefaultLog;
-  logger(node != NULL ? node->config : NULL, node, format, args);
+  logger(node != NULL ? node->config : NULL, node, level, format, args);
   va_end(args);
 }
 

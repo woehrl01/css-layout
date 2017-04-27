@@ -11,7 +11,7 @@
 
 static int unmanagedLogger(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args) {
   int result = 0;
-  YGInteropLoggerFunc  ManagedFunc = (YGInteropLoggerFunc)YGConfigGetContext(config);
+  YGInteropLoggerFunc managedFunc = (YGInteropLoggerFunc)YGConfigGetContext(config);
   if (managedFunc) {
     char buffer[256];
     result = vsnprintf(buffer, sizeof(buffer), format, args);
