@@ -201,7 +201,11 @@ static YGNode gYGNodeDefaults = {
         },
 };
 
+#ifdef ANDROID
+static int YGAndroidLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args);
+#else
 static int YGDefaultLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args);
+#endif
 
 static YGConfig gYGConfigDefaults = {
     .experimentalFeatures =
@@ -233,6 +237,9 @@ static YGValue YGValueZero = {.value = 0, .unit = YGUnitPoint};
 static int YGAndroidLog(const YGConfigRef config, const YGNodeRef node, YGLogLevel level, const char *format, va_list args) {
   int androidLevel = YGLogLevelDebug;
   switch (level) {
+    case YGLogLevelFatal:
+      androidLevel = ANDROID_LOG_FATAL;
+      break;
     case YGLogLevelError:
       androidLevel = ANDROID_LOG_ERROR;
       break;
