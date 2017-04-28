@@ -393,6 +393,11 @@ int32_t YGConfigGetInstanceCount(void) {
   return gConfigInstanceCount;
 }
 
+// Export only for C#
+YGConfigRef YGConfigGetDefault() {
+  return &gYGConfigDefaults;
+}
+
 YGConfigRef YGConfigNew(void) {
   const YGConfigRef config = gYGMalloc(sizeof(YGConfig));
   if (config == NULL) {
