@@ -3465,19 +3465,27 @@ void YGSetLogger(const YGConfigRef config, YGLogger logger) {
   }
 }
 
+static void YGVLog(const YGConfigRef config,
+                   const YGNodeRef node,
+                   YGLogLevel level,
+                   const char *format,
+                   va_list args) {
+  const YGConfigRef logConfig = config != NULL ? config : &gYGConfigDefaults;
+  logConfig->logger(logConfig, node, level, format, args);
+}
+
 void YGLogWithConfig(const YGConfigRef config, YGLogLevel level, const char *format, ...) {
   va_list args;
   va_start(args, format);
-  const YGLogger logger = config != NULL ? config->logger : &YGDefaultLog;
-  logger(config, NULL, level, format, args);
+  YGVLog(config, NULL, level, format, args);
   va_end(args);
 }
 
 void YGLog(const YGNodeRef node, YGLogLevel level, const char *format, ...) {
+  const YGConfigRef config = node != NULL ? node->config : NULL;
   va_list args;
   va_start(args, format);
-  const YGLogger logger = node != NULL ? node->config->logger : &YGDefaultLog;
-  logger(node != NULL ? node->config : NULL, node, level, format, args);
+  YGVLog(config, node, level, format, args);
   va_end(args);
 }
 
