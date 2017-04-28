@@ -329,6 +329,7 @@ namespace Facebook.Yoga
             Assert.AreEqual(90.Pt(), node4.MaxHeight);
         }
 
+#if !UNITY_5_4_OR_NEWER
         public static void ForceGC()
         {
             GC.Collect();
@@ -458,6 +459,7 @@ namespace Facebook.Yoga
                 return MeasureOutput.Make(120, 130);
             });
         }
+#endif
 
         [Test]
         public void TestLayoutMargin() {

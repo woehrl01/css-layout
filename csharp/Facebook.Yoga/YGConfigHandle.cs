@@ -47,7 +47,7 @@ namespace Facebook.Yoga
         {
             if (!_managedConfigHandle.IsAllocated)
             {
-#if ENABLE_IL2CPP
+#if UNITY_5_4_OR_NEWER
                 // Weak causes 'GCHandle value belongs to a different domain' error
                 _managedConfigHandle = GCHandle.Alloc(config);
 #else
