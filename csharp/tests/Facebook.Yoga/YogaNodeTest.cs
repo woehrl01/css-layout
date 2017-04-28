@@ -331,7 +331,7 @@ namespace Facebook.Yoga
 
         public static void ForceGC()
         {
-            GC.Collect(GC.MaxGeneration);
+            GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
